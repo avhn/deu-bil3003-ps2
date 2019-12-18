@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
 
+
 def normalize(val: str):
     """
     Normalize a string value.
     """
-    
-    val = val.replace("'", "")
-    try:
-        if val.isdecimal():
-            val = int(val)
-        else:
-            val = float(val)
-    except ValueError:
-        pass
 
-    return val
+    val = val.replace("'", "")
+    return (val.isdecimal() and int(val) or float(val)) if val.isnumeric() else val
