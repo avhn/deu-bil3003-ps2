@@ -9,12 +9,13 @@ def parse_set(filepath="train_set.csv"):
     Parse .csv file and try to use int or float when possible.
 
     Args:
-        filepath: Relative path of the data file
+        filepath: Relative path of the .csv data file. File should indicate
+            the class as last value at every line.
 
     Returns:
         All rows as tuples in a set object. Values are normalized.
         Representation:
-            set{tuple(v1, ...), tuple(v1, ...), ...}
+            set{tuple(v1, ..., class), tuple(v1, ..., class), ...}
     """
 
     D = set()

@@ -9,3 +9,5 @@ Goal is to prune and generate **binary split classification trees** with an impl
 - Python 3.8
 - GitLab CI
 - Git
+
+## Notes
