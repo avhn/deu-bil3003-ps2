@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 
 class CartNode(object):
     """Binary split node."""
@@ -10,11 +12,14 @@ class CartNode(object):
             t: records this node encapsulates
         """
 
+        if not t:
+            raise ValueError("Subset isn't valid.")
+
         self.t = t
         self.value = None
         self.left, self.right = None, None
 
-    def set_leafs(self, left=None, right=None, /):
+    def set_branches(self, left=None, right=None, /):
         """
         Set this node as subtree.
 
@@ -23,30 +28,32 @@ class CartNode(object):
             Arguments should be instance of Node, this class.
         """
 
-        self.left, self.right, self.value = left, right
+        self.left, self.right = left, right
         self.value = None
 
-    def set_as_value(self, value):
+    def set_as_leaf(self, value):
         """Set this node as a leaf."""
 
         self.left, self.right = None, None
         self.value = value
 
-    def is_node_valid(self):
-        """Return if node is valid."""
-
-        return self.right is None and self.left is None \
-               != self.value is None
-
     def is_leaf(self):
         """Return corresponding boolean indicator."""
 
-        if not self.is_node_valid():
-            raise ValueError("Node is just initialized or leaf pointers and value aren't compatible.")
         return not (self.left or self.right)
+
+    def is_node_valid(self):
+        """Determine if node is valid."""
+
+        return ((self.left or self.right) is None) is not (self.value is None)
 
     def split(self):
         pass
 
     def split_recursively(self):
         pass
+
+    def __repr__(self):
+        return f"len(t): {len(self.t)}, value: {self.value}" + os.linesep + \
+               f"left: {True if self.left else self.left}" + os.linesep + \
+               f"right: {True if self.right else self.right}"
