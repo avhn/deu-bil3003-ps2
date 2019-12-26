@@ -7,8 +7,10 @@ class CartNode(object):
     """
     Binary split node.
 
-    Leaf represented with a node with value, subtree represented with left
-    and right attributes. If has value, doesn't have branches and vice versa.
+    Decision is made by checking decision function, if result is true decision
+    making continues from the left branch, and if false continues from the
+    right branch. Leaf represented with a node with value, subtree represented
+    with left and right attributes. If has value, doesn't have branches and vice versa.
     """
 
     def __init__(self, records: set):
@@ -22,14 +24,14 @@ class CartNode(object):
 
         self.records = records
         self.value = None
+        self.decision_function = None
         self.left, self.right = None, None
 
-    def set_branches(self, left=None, right=None, /):
+    def set_branches(self, left=None, right=None):
         """
         Set this node as subtree.
 
         Args:
-            Takes 2 positional(!) arguments to set as leafs.
             Arguments should be instance of Node, this class.
         """
 
@@ -50,7 +52,21 @@ class CartNode(object):
     def is_node_valid(self):
         """Determine if node is valid."""
 
-        return ((self.left or self.right) is None) is not (self.value is None)
+        return ((self.left or self.right or self.decision_function) is None) \
+            is not (self.value is None)
+
+    def set_decision_function(self, function):
+        """Set decision function."""
+
+        self.decision_function = function
+
+    def decide(self, record: tuple):
+        """Decide crawling through child nodes."""
+        assert self.is_node_valid()
+        if self.is_leaf():
+            return self.value
+        return self.left.decide(record) if self.decision_function(record) \
+            else self.right.decide(record)
 
     def split(self):
         pass

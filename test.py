@@ -3,17 +3,26 @@
 
 import unittest
 import random
-import os
 
 from cart import utils
 from cart import parse
 from cart.node import CartNode
 
 
+class ParseTests(unittest.TestCase):
+    files = './train_set.csv', './test_set.csv'
+
+    def test_parse_set(self):
+        for file_path in self.files:
+            d = parse.parse_set(file_path)
+            assert d and len(d) > 1 and len(d.pop()) > 1
+
+
 class UtilTests(unittest.TestCase):
     string_float = '0.34243'
     string_int = '12341234'
     string = '123abc.456def'
+    dataset = None
 
     @staticmethod
     def get_instance_row(row: tuple, instance_classes: tuple):
@@ -22,6 +31,13 @@ class UtilTests(unittest.TestCase):
         for c in range(len(row)):
             if isinstance(row[c], instance_classes):
                 return c
+
+    def get_dataset(self):
+        """Helper method which caches."""
+
+        if not self.dataset:
+            self.dataset = tuple(parse.parse_set())
+        return self.dataset
 
     def test_is_convertible(self):
         assert not utils.is_convertible(self.string)
@@ -40,27 +56,28 @@ class UtilTests(unittest.TestCase):
         assert 0 <= index <= 0.5
 
     def test_generate_splits_string(self):
-        # TODO: not implemented
-        dataset = list(parse.parse_set())
+        dataset = self.get_dataset()
         column = self.get_instance_row(dataset[0], (str, ))
-        for i, test in enumerate(utils.generate_splits_string(column, dataset)):
-            print(os.linesep, i, test)
+        for function in utils.generate_splits_string(column, dataset):
+            function(random.choice(dataset))
+            return True
+        raise ValueError("Empty generator.")
 
-    def test_generate_splits_numbered(self):
-        # TODO: not implemented
-        pass
+    def test_generate_splits_number(self):
+        dataset = self.get_dataset()
+        column = self.get_instance_row(dataset[0], (int, float))
+        for function in utils.generate_splits_number(column, dataset):
+            function(random.choice(dataset))
+            return True
+        raise ValueError("Empty generator.")
 
     def test_generate_splits(self):
-        # TODO: not implemented
-        pass
-
-class ParseTests(unittest.TestCase):
-    files = './train_set.csv', './test_set.csv'
-
-    def test_parse_set(self):
-        for file_path in self.files:
-            d = parse.parse_set(file_path)
-            assert d and len(d) > 1 and len(d.pop()) > 1
+        dataset = self.get_dataset()
+        dataset = dataset[:len(dataset) // 10]
+        function = None
+        for function in utils.generate_splits(dataset):
+            function(random.choice(dataset))
+        assert function
 
 
 class CartNodeTests(unittest.TestCase):
