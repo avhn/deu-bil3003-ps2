@@ -25,7 +25,7 @@ def gini_index(records):
     Calculate gini index of a single dataset.
 
     Args:
-        records: Any iterable
+        records: Any record sequence
     Returns:
         Floating value between 0 and 1.
     """
@@ -53,7 +53,7 @@ def generate_splits_string(column: int, records):
         Corresponding lambda function.
     """
 
-    if column == len(records):
+    if column == len(random.sample(records, 1)[0]):
         raise ValueError("Invalid index.")
 
     distinct = set()
@@ -83,7 +83,7 @@ def generate_splits_number(column: int, records):
         Corresponding lambda function.
     """
 
-    if column == len(records):
+    if column == len(random.sample(records, 1)[0]):
         raise ValueError("Invalid index.")
 
     distinct = set()
@@ -95,19 +95,20 @@ def generate_splits_number(column: int, records):
         yield lambda r: r[column] <= split_point
 
 
-def generate_splits(records):
+def generate_splits(records, class_tag_included=True):
     """
     Generate all possible decision functions from the records.
 
     Args:
         records: Any sequence of record tuples
-
+        class_tag_included: Class tag at the index -1
     Yields:
         All decision functions for the records.
     """
 
     record = random.sample(records, 1)[0]
-    for column in range(0, len(record) - 1):  # -1 for class tags
+
+    for column in range(0, len(record) - (1 if class_tag_included else 0)):
         generator = generate_splits_string if isinstance(record[column], str) \
             else generate_splits_number
         for decision_function in generator(column, records):

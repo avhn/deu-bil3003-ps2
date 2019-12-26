@@ -22,7 +22,7 @@ class CartNode(object):
             records: Any sequence of records this node encapsulates
         """
 
-        if not records:
+        if not records or not isinstance(records, (set, frozenset, tuple, list)):
             raise ValueError("Subset isn't valid.")
 
         self.records = records
@@ -31,9 +31,9 @@ class CartNode(object):
         self.split_info = None  # TODO: To visualize, not implemented
         self.left, self.right = None, None
 
-    def set_branches(self, left=None, right=None):
+    def set_branches(self, left=None, right=None, /):
         """
-Set this node as subtree.
+        Set this node as subtree.
 
         Args:
             Arguments should be instance of Node, this class.
@@ -64,34 +64,32 @@ Set this node as subtree.
 
         self.decision_function = function
 
-    def decide(self, record: tuple):
-        """Decide crawling through child nodes."""
-
-        assert self.is_node_valid()
-        if self.is_leaf():
+    def split(self):
+        """Split node or label it as value."""
+        # check if pure to label
+        if utils.gini_index(self.records) == 0:
+            self.set_as_leaf(random.sample(self.records, 1)[0][-1])
             return self.value
-        return self.left.decide(record) if self.decision_function(record) \
-            else self.right.decide(record)
+        # split
+        gini_index, left_set, right_set, self.decision_function = \
+            utils.best_split(self.records)
+        self.set_branches(CartNode(left_set), CartNode(right_set))
 
     def split_recursively(self):
         """Split recursively to construct decision tree."""
 
         self.split()
         if not self.is_leaf():
-            self.left.split()
-            self.right.split()
+            self.left.split_recursively()
+            self.right.split_recursively()
 
-    def split(self):
-        """Split node or label it as value."""
+    def decide(self, record: tuple):
+        """Decide crawling through child nodes."""
 
-        # check if pure to label
-        if utils.gini_index(self.records) == 0:
-            self.set_as_leaf(random.sample(self.records, 1)[0][-1])
+        if self.is_leaf():
             return self.value
-        # split
-        gini_index, self.decision_function, left_set, right_set = \
-            utils.best_split(self.records)
-        self.set_branches(CartNode(left_set), CartNode(right_set))
+        return self.left.decide(record) if self.decision_function(record) \
+            else self.right.decide(record)
 
     def __repr__(self):
         return f"len(t): {len(self.records)}, value: {self.value}" + os.linesep + \

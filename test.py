@@ -3,11 +3,11 @@
 
 import unittest
 import random
-import os
 
 from cart import utils
 from cart import parse
 from cart.node import CartNode
+from cart.tree import CartTree
 
 
 class ParseTests(unittest.TestCase):
@@ -142,6 +142,41 @@ class CartNodeTests(unittest.TestCase):
         node.value = 'some val'
         assert not node.is_node_valid()
 
+    def test_split(self):
+        node = self.test_init()
+        assert not node.is_node_valid()
+        node.split()
+        assert node.is_node_valid()
+        tag = random.sample(node.records, 1)[0][-1]
+        dataset = parse.parse_set()
+        pure_node = CartNode([record for record in random.sample(dataset, len(dataset) // 3)
+                              if record[-1] == tag])
+        pure_node.split()
+        assert pure_node.is_leaf()
+
+    def test_split_recursively(self):
+        """Also returns the node created."""
+
+        node = self.test_init()
+        node.split_recursively()
+        assert node.is_node_valid()
+        assert node.left.is_node_valid() and node.right.is_node_valid()
+        # crawl through and test at CartTree tests
+        return node
+
+    def test_decide(self):
+        node = self.test_split_recursively()
+        dataset = parse.parse_set('test_set.csv')
+        record = random.sample(dataset, 1)[0]
+        result = node.decide(record)
+        assert result
+        assert isinstance(result, str)
+
+
+class CartTreeTests(unittest.TestCase):
+
+    def test_init(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()
