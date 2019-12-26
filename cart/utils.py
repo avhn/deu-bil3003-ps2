@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import random
 from collections import defaultdict
 from itertools import chain
 from itertools import combinations
@@ -105,9 +106,9 @@ def generate_splits(records):
         All decision functions for the records.
     """
 
-    records = tuple(records)
-    for column in range(0, len(records[0]) - 1):  # -1 for class tags
-        generator = generate_splits_string if isinstance(records[0][column], str) \
+    record = random.sample(records, 1)[0]
+    for column in range(0, len(record) - 1):  # -1 for class tags
+        generator = generate_splits_string if isinstance(record[column], str) \
             else generate_splits_number
         for decision_function in generator(column, records):
             yield decision_function
@@ -130,3 +131,24 @@ def gini_index_split(decision_function, records):
         left_set.add(record) if decision_function(record) else right_set.add(record)
     left_gini, right_gini = gini_index(left_set), gini_index(right_set)
     return max(left_gini, right_gini), left_set, right_set
+
+
+def best_split(records):
+    """
+    Find the best split.
+
+    Args:
+        records: Any sequence of records
+    Returns:
+        Best of gini_index_split's output and corresponding decision function.
+        Representation:
+            (Gini index of the split, left branch's record set, right branch's record set)
+    """
+
+    result = None
+    for decision_function in generate_splits(records):
+        split = gini_index_split(decision_function, records)
+        if not result or split[0] < result[0]:
+            result = *split, decision_function
+    return result
+

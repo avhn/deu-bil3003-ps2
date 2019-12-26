@@ -3,6 +3,7 @@
 
 import unittest
 import random
+import os
 
 from cart import utils
 from cart import parse
@@ -87,6 +88,14 @@ class UtilTests(unittest.TestCase):
             assert left_set and right_set
             return True
         raise ValueError("Empty generator.")
+
+    def test_best_split(self):
+        dataset = self.get_dataset()
+        gini_index, left_set, right_set, decision_function \
+            = utils.best_split(dataset)
+        assert decision_function(random.sample(left_set, 1)[0]) is not None
+        assert decision_function(random.sample(right_set, 1)[0]) is not None
+        assert 0 <= gini_index <= 1
 
 
 class CartNodeTests(unittest.TestCase):
