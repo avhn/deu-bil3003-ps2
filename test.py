@@ -64,21 +64,21 @@ class CartNodeTests(unittest.TestCase):
         value = 'test value'
         node.set_as_leaf(value)
         # node is value node
-        assert node.value and node.value is value
+        assert node.value is value
         assert node.left is None and node.right is None
         return node
 
     def test_is_leaf(self):
-        assert self.test_set_branches().is_leaf() is False
+        assert not self.test_set_branches().is_leaf()
         assert self.test_set_as_leaf().is_leaf()
 
     def test_is_node_valid(self):
         empty_node = self.test_init()
-        assert empty_node.is_node_valid() is False
+        assert not empty_node.is_node_valid()
         node = self.test_set_branches()
-        assert node.is_node_valid() is True
+        assert node.is_node_valid()
         node.value = 'some val'
-        assert node.is_node_valid() is False
+        assert not node.is_node_valid()
 
 
 if __name__ == '__main__':
