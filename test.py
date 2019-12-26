@@ -19,6 +19,13 @@ class UtilTests(unittest.TestCase):
         assert isinstance(utils.normalize(self.string_float), float)
         assert isinstance(utils.normalize(self.string), str)
 
+    def test_gini_index(self):
+        dataset = parse.parse_set()
+        index = utils.gini_index(dataset)
+
+        assert index and 0 <= index <= 0.5
+
+
 
 class ParseTests(unittest.TestCase):
     files = './train_set.csv', './test_set.csv'

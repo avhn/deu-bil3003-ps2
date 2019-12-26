@@ -2,7 +2,7 @@
 
 [![pipeline status](https://gitlab.com/Anaxilaus/bil3003-ps2/badges/master/pipeline.svg)](https://gitlab.com/Anaxilaus/bil3003-ps2/commits/master)
 
-Goal is to prune and generate **binary split classification trees** with an implementation of *CART algorithm*. See [problem set description.](./DESCRIPTION.pdf)
+Goal is to generate and prune **binary split classification trees** with an implementation of *CART algorithm*. See [problem set description.](./DESCRIPTION.pdf)
 
 *Technologies used in this project:*
 

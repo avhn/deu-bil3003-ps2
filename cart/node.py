@@ -4,18 +4,23 @@ import os
 
 
 class CartNode(object):
-    """Binary split node."""
+    """
+    Binary split node.
 
-    def __init__(self, t: set):
+    Leaf represented with a node with value, subtree represented with left
+    and right attributes. If has value, doesn't have branches and vice versa.
+    """
+
+    def __init__(self, records: set):
         """
         Args:
-            t: records this node encapsulates
+            records: records this node encapsulates
         """
 
-        if not t:
+        if not records:
             raise ValueError("Subset isn't valid.")
 
-        self.t = t
+        self.records = records
         self.value = None
         self.left, self.right = None, None
 
@@ -50,10 +55,7 @@ class CartNode(object):
     def split(self):
         pass
 
-    def split_recursively(self):
-        pass
-
     def __repr__(self):
-        return f"len(t): {len(self.t)}, value: {self.value}" + os.linesep + \
+        return f"len(t): {len(self.records)}, value: {self.value}" + os.linesep + \
                f"left: {True if self.left else self.left}" + os.linesep + \
                f"right: {True if self.right else self.right}"
