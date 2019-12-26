@@ -3,6 +3,7 @@
 
 import unittest
 import random
+import os
 
 from cart import utils
 from cart import parse
@@ -12,7 +13,20 @@ from cart.node import CartNode
 class UtilTests(unittest.TestCase):
     string_float = '0.34243'
     string_int = '12341234'
-    string = '234asdf.2340sdfs'
+    string = '123abc.456def'
+
+    @staticmethod
+    def get_instance_row(row: tuple, instance_classes: tuple):
+        """Helper method. Find the corresponding row."""
+
+        for c in range(len(row)):
+            if isinstance(row[c], instance_classes):
+                return c
+
+    def test_is_convertible(self):
+        assert not utils.is_convertible(self.string)
+        assert utils.is_convertible(self.string_float)
+        assert utils.is_convertible(self.string_int)
 
     def test_normalize(self):
         assert isinstance(utils.normalize(self.string_int), int)
@@ -22,18 +36,31 @@ class UtilTests(unittest.TestCase):
     def test_gini_index(self):
         dataset = parse.parse_set()
         index = utils.gini_index(dataset)
+        assert index and isinstance(index, float)
+        assert 0 <= index <= 0.5
 
-        assert index and 0 <= index <= 0.5
+    def test_generate_splits_string(self):
+        # TODO: not implemented
+        dataset = list(parse.parse_set())
+        column = self.get_instance_row(dataset[0], (str, ))
+        for i, test in enumerate(utils.generate_splits_string(column, dataset)):
+            print(os.linesep, i, test)
 
+    def test_generate_splits_numbered(self):
+        # TODO: not implemented
+        pass
 
+    def test_generate_splits(self):
+        # TODO: not implemented
+        pass
 
 class ParseTests(unittest.TestCase):
     files = './train_set.csv', './test_set.csv'
 
     def test_parse_set(self):
         for file_path in self.files:
-            D = parse.parse_set(file_path)
-            assert D and len(D) > 1 and len(D.pop()) > 1
+            d = parse.parse_set(file_path)
+            assert d and len(d) > 1 and len(d.pop()) > 1
 
 
 class CartNodeTests(unittest.TestCase):

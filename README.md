@@ -11,3 +11,5 @@ Goal is to generate and prune **binary split classification trees** with an impl
 - Git
 
 ## Notes
+
+- It is assumed that the .csv file indicates class tag as the last value.
