@@ -79,6 +79,15 @@ class UtilTests(unittest.TestCase):
             function(random.choice(dataset))
         assert function
 
+    def test_gini_index_split(self):
+        dataset = self.get_dataset()
+        for decision_function in utils.generate_splits(dataset):
+            gini_index, left_set, right_set = utils.gini_index_split(decision_function, dataset)
+            assert gini_index and 0 <= gini_index <= 1
+            assert left_set and right_set
+            return True
+        raise ValueError("Empty generator.")
+
 
 class CartNodeTests(unittest.TestCase):
     D = list(parse.parse_set())

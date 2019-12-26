@@ -122,7 +122,11 @@ def gini_index_split(decision_function, records):
         records: Any sequence of record tuples
 
     Returns:
-        Gini index of the split.
+        (Gini index of the split, left branch's record set, right branch's record set)
     """
 
-    pass
+    left_set, right_set = set(), set()
+    for record in records:
+        left_set.add(record) if decision_function(record) else right_set.add(record)
+    left_gini, right_gini = gini_index(left_set), gini_index(right_set)
+    return max(left_gini, right_gini), left_set, right_set
