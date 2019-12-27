@@ -20,6 +20,8 @@ class CartTree(object):
         return self.root.decide(record)
 
     def __repr__(self, csv_header_file='train_set.csv'):
+        """Use TreeNode.print_tree_recursively."""
+
         print_list = list()
         self.root.print_tree_recursively(print_list)
         return ''.join(print_list)

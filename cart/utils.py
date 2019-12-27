@@ -62,16 +62,10 @@ def generate_splits_string(column: int, records):
     distinct = set()
     for record in records:
         distinct.add(str(record[column]))
-    max_antecedent_len = len(distinct) // 2
-    antecedents = [combinations(distinct, l) for l in range(1, max_antecedent_len + 1)]
-    duplicates = set()
+    antecedents = [combinations(distinct, l) for l in range(1, len(distinct))]
     for left_branch in chain.from_iterable(antecedents):
-        # use frozenset to be able to hash sets to detect duplicates
         left_branch = frozenset(left_branch)
-        if left_branch not in duplicates:  # no need to check both branches
-            yield lambda r: r[column] in left_branch, f"{column + 1}. column in {left_branch}"
-        if len(left_branch) == max_antecedent_len:
-            duplicates.add(frozenset(distinct.difference(left_branch)))
+        yield lambda r: r[column] in left_branch, f"{column + 1}. column in {left_branch}"
 
 
 def generate_splits_number(column: int, records):
@@ -120,7 +114,7 @@ def generate_splits(records, class_tag_included=True):
 
 def gini_index_split(decision_function, records):
     """
-    Calculate gini index of the split.
+    Calculate gini indexes and record sets of the split branches.
 
     Args:
         decision_function: lambda function for decision
