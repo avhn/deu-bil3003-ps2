@@ -176,7 +176,17 @@ class CartNodeTests(unittest.TestCase):
 class CartTreeTests(unittest.TestCase):
 
     def test_init(self):
-        pass
+        """Also returns the tree created."""
+        dataset = parse.parse_set()
+        tree = CartTree(random.sample(dataset, len(dataset) // 5))
+        return tree
+
+    def test_decide(self):
+        tree = self.test_init()
+        dataset = parse.parse_set()
+        tag = tree.decide(random.sample(dataset, 1)[0])
+        assert tag and isinstance(tag, str)
+
 
 if __name__ == '__main__':
     unittest.main()

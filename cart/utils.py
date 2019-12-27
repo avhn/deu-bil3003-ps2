@@ -152,4 +152,3 @@ def best_split(records):
         if not result or split[0] < result[0]:
             result = *split, decision_function
     return result
-
