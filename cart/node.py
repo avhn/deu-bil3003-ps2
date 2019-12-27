@@ -85,13 +85,13 @@ class CartNode(object):
             self.left.split_recursively()
             self.right.split_recursively()
 
-    def decide(self, record: tuple):
-        """Decide crawling through child nodes."""
+    def classify(self, record: tuple):
+        """Classify crawling through child nodes."""
 
         if self.is_leaf():
             return self.value
-        return self.left.decide(record) if self.decision_function(record) \
-            else self.right.decide(record)
+        return self.left.classify(record) if self.decision_function(record) \
+            else self.right.classify(record)
 
     def print_tree_recursively(self, output_list, prefix='', children_prefix=''):
         """Courtesy to Vasili Novikov."""
@@ -107,6 +107,8 @@ class CartNode(object):
                 node.print_tree_recursively(output_list, children_prefix + "└(F)─ ", children_prefix + "      ")
 
     def __repr__(self):
-        return f"len(t): {len(self.records)}, value: {self.value}" + os.linesep + \
-               f"left: {True if self.left else self.left}" + os.linesep + \
-               f"right: {True if self.right else self.right}"
+        """Return representation of this subtree, or leaf."""
+
+        print_list = list()
+        self.print_tree_recursively(print_list)
+        return ''.join(print_list)

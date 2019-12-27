@@ -14,12 +14,12 @@ class CartTree(object):
         self.root = CartNode(records)
         self.root.split_recursively()
 
-    def decide(self, record: tuple):
+    def classify(self, record: tuple):
         """Classify the record."""
 
-        return self.root.decide(record)
+        return self.root.classify(record)
 
-    def __repr__(self, csv_header_file='train_set.csv'):
+    def __repr__(self):
         """Use TreeNode.print_tree_recursively."""
 
         print_list = list()

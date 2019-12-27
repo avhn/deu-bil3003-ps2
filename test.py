@@ -174,11 +174,11 @@ class CartNodeTests(unittest.TestCase):
         # crawl through and test at CartTree tests
         return node
 
-    def test_decide(self):
+    def test_classify(self):
         node = self.test_split_recursively()
         dataset = parse.parse_set('test_set.csv')
         record = random.sample(dataset, 1)[0]
-        result = node.decide(record)
+        result = node.classify(record)
         assert result
         assert isinstance(result, str)
 
@@ -191,10 +191,10 @@ class CartTreeTests(unittest.TestCase):
         tree = CartTree(random.sample(dataset, len(dataset) // 5))
         return tree
 
-    def test_decide(self):
+    def test_classify(self):
         tree = self.test_init()
         dataset = parse.parse_set()
-        tag = tree.decide(random.sample(dataset, 1)[0])
+        tag = tree.classify(random.sample(dataset, 1)[0])
         assert tag and isinstance(tag, str)
 
 

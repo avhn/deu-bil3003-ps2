@@ -17,7 +17,6 @@ To run, use the main.py file, there's no dependencies:
 $ python3.8 main.py
 ```
 
-
 ## Notes
 
 - It is assumed that the .csv file indicates class tag as the last value.

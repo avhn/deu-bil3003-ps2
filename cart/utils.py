@@ -164,7 +164,7 @@ def test_classifier(classifier, test_set_file='test_set.csv', positive='good'):
     Test classifier object's accuracy.
 
     Args:
-        classifier: And classifier object with the method "decide(self, record)"
+        classifier: And classifier object with the method "classify(self, record)"
         test_set_file: location of the csv file, the test set
         positive: Positive tag
     Returns:
@@ -175,7 +175,7 @@ def test_classifier(classifier, test_set_file='test_set.csv', positive='good'):
     test_set = parse.parse_set(test_set_file)
     counts = [[0, 0], [0, 0]]  # [[TP count, FP count], [TN count, FN count]]
     for record in test_set:
-        result = classifier.decide(record)
+        result = classifier.classify(record)
         if result == positive:
             if result == record[-1]:
                 counts[0][0] += 1
