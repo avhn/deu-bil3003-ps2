@@ -32,7 +32,7 @@ class CartNode(object):
         self.split_info = None
         self.left, self.right = None, None
 
-    def set_branches(self, left=None, right=None, /):
+    def set_branches(self, left=None, right=None):
         """
         Set this node as subtree.
 
