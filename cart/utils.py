@@ -164,7 +164,7 @@ def best_split(records, impurity: float):
     return result
 
 
-def test_classifier(classifier, test_set_file='test_set.csv'):
+def test_classifier(classifier, test_set_file='test_set.csv', positive='good'):
     """
     * Problem set specific. Only for binary class data sets.
     Test classifier object's accuracy.
@@ -172,14 +172,13 @@ def test_classifier(classifier, test_set_file='test_set.csv'):
     Args:
         classifier: And classifier object with the method "decide(self, record)"
         test_set_file: location of the csv file, the test set
+        positive: Positive tag
     Returns:
         Sequence representing test result as below:
             (Accuracy, TP rate, TN rate, TP count, TN count)
     """
 
     test_set = parse.parse_set(test_set_file)
-
-    positive = 'good'
     counts = [[0, 0], [0, 0]]  # [[TP count, FP count], [TN count, FN count]]
     for record in test_set:
         result = classifier.decide(record)
