@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import random
-import os
 from collections import defaultdict
 from itertools import chain
 from itertools import combinations
+import os
+import random
 
 from . import parse
 
@@ -51,7 +51,6 @@ def generate_splits_string(column: int, records):
     Args:
         column: Corresponding index
         records: Any sequence of record tuples
-
     Yields:
         Corresponding lambda function, description of the function
     """
@@ -65,7 +64,8 @@ def generate_splits_string(column: int, records):
     antecedents = [combinations(distinct, l) for l in range(1, len(distinct))]
     for left_branch in chain.from_iterable(antecedents):
         left_branch = frozenset(left_branch)
-        yield lambda r: r[column] in left_branch, f"{column + 1}. column in {left_branch}"
+        yield lambda r: r[column] in left_branch, \
+            f"{column + 1}. column in {{{', '.join([element for element in left_branch])}}}"
 
 
 def generate_splits_number(column: int, records):
@@ -75,7 +75,6 @@ def generate_splits_number(column: int, records):
     Args:
         column: Corresponding index
         records: Any sequence of record tuples
-
     Yields:
         Corresponding lambda function, description of the function
     """
@@ -104,7 +103,6 @@ def generate_splits(records, class_tag_included=True):
     """
 
     record = random.sample(records, 1)[0]
-
     for column in range(0, len(record) - (1 if class_tag_included else 0)):
         generator = generate_splits_string if isinstance(record[column], str) \
             else generate_splits_number
@@ -119,7 +117,6 @@ def gini_index_split(decision_function, records):
     Args:
         decision_function: lambda function for decision
         records: Any sequence of record tuples
-
     Returns:
         (left gini index, left set), (right gini index, right set)
     """
@@ -149,8 +146,7 @@ def best_split(records, impurity: float):
     for decision_function, description in generate_splits(records):
         (left_gini, left_set), (right_gini, right_set) = \
             gini_index_split(decision_function, records)
-        # weight impurities with the length of the sets
-        # to calculate more accurate gain values
+        # weight impurities with the size of the sets
         left_weight = len(left_set) / len(records)
         gain = impurity - left_weight * left_gini - (1 - left_weight) * right_gini
         if 0 < gain and (not result or result[0] < gain):
@@ -170,6 +166,7 @@ def test_classifier(classifier, test_set_file='test_set.csv', positive='good'):
     Returns:
         Sequence representing test result as below:
             (Accuracy, TP rate, TN rate, TP count, TN count)
+        If not enough test data, returns None.
     """
 
     test_set = parse.parse_set(test_set_file)
@@ -194,8 +191,8 @@ def test_classifier(classifier, test_set_file='test_set.csv', positive='good'):
         return None
 
 
-def format_test_result(result):
-    """Print output of test_classifier."""
+def format_test_classifier_result(result):
+    """Format output of test_classifier."""
 
     if not result:
         return "Not enough test data."

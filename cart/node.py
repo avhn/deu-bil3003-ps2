@@ -102,9 +102,11 @@ class CartNode(object):
         children = [n for n in (self.left, self.right) if n]
         for i, node in enumerate(children):
             if i == 0:
-                node.print_tree_recursively(output_list, children_prefix + "├(T)─ ", children_prefix + "│     ")
+                node.print_tree_recursively(output_list, children_prefix + "├(T)─ ",
+                                            children_prefix + "│     ")
             else:
-                node.print_tree_recursively(output_list, children_prefix + "└(F)─ ", children_prefix + "      ")
+                node.print_tree_recursively(output_list, children_prefix + "└(F)─ ",
+                                            children_prefix + "      ")
 
     def __repr__(self):
         """Return representation of this subtree, or leaf."""
