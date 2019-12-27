@@ -59,16 +59,18 @@ class UtilTests(unittest.TestCase):
     def test_generate_splits_string(self):
         dataset = self.get_dataset()
         column = self.get_instance_row(dataset[0], (str, ))
-        for function in utils.generate_splits_string(column, dataset):
+        for function, description in utils.generate_splits_string(column, dataset):
             function(random.choice(dataset))
+            assert description
             return True
         raise ValueError("Empty generator.")
 
     def test_generate_splits_number(self):
         dataset = self.get_dataset()
         column = self.get_instance_row(dataset[0], (int, float))
-        for function in utils.generate_splits_number(column, dataset):
+        for function, description in utils.generate_splits_number(column, dataset):
             function(random.choice(dataset))
+            assert description
             return True
         raise ValueError("Empty generator.")
 
@@ -76,13 +78,14 @@ class UtilTests(unittest.TestCase):
         dataset = self.get_dataset()
         dataset = dataset[:len(dataset) // 10]
         function = None
-        for function in utils.generate_splits(dataset):
+        for function, description in utils.generate_splits(dataset):
             function(random.choice(dataset))
+            assert description
         assert function
 
     def test_gini_index_split(self):
         dataset = self.get_dataset()
-        for decision_function in utils.generate_splits(dataset):
+        for decision_function, _ in utils.generate_splits(dataset):
             left, right = utils.gini_index_split(decision_function, dataset)
             assert left and right
             return True
@@ -90,11 +93,19 @@ class UtilTests(unittest.TestCase):
 
     def test_best_split(self):
         dataset = self.get_dataset()
-        gini_index, left_set, right_set, decision_function \
+        gini_index, left_set, right_set, decision_function, description \
             = utils.best_split(dataset, utils.gini_index(dataset))
         assert decision_function(random.sample(left_set, 1)[0]) is not None
         assert decision_function(random.sample(right_set, 1)[0]) is not None
+        assert description and isinstance(description, str)
         assert 0 <= gini_index <= 1
+
+    def test_test_classifier(self):
+        tree = CartTree(self.get_dataset())
+        accuracy, tp_rate, tn_rate, tp_count, tn_count = utils.test_classifier(tree)
+        assert accuracy
+        assert tp_rate and tp_count
+        assert tn_rate and tn_count
 
 
 class CartNodeTests(unittest.TestCase):

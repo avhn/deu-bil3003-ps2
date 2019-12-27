@@ -29,7 +29,7 @@ class CartNode(object):
         self.impurity = None
         self.value = None
         self.decision_function = None
-        self.split_info = None  # TODO: To visualize, not implemented
+        self.split_info = None
         self.left, self.right = None, None
 
     def set_branches(self, left=None, right=None, /):
@@ -73,7 +73,7 @@ class CartNode(object):
             self.set_as_leaf(random.sample(self.records, 1)[0][-1])
             return self.value
         # split
-        _, left_set, right_set, self.decision_function = \
+        _, left_set, right_set, self.decision_function, self.split_info = \
             utils.best_split(self.records, self.impurity)
         self.set_branches(CartNode(left_set), CartNode(right_set))
 
@@ -92,6 +92,19 @@ class CartNode(object):
             return self.value
         return self.left.decide(record) if self.decision_function(record) \
             else self.right.decide(record)
+
+    def print_tree_recursively(self, output_list, prefix='', children_prefix=''):
+        """Courtesy to Vasili Novikov."""
+
+        output_list.append(prefix)
+        output_list.append(f"({self.split_info})" if not self.is_leaf() else self.value)
+        output_list.append(os.linesep)
+        children = [n for n in (self.left, self.right) if n]
+        for i, node in enumerate(children):
+            if i == 0:
+                node.print_tree_recursively(output_list, children_prefix + "├(T)─ ", children_prefix + "│     ")
+            else:
+                node.print_tree_recursively(output_list, children_prefix + "└(F)─ ", children_prefix + "      ")
 
     def __repr__(self):
         return f"len(t): {len(self.records)}, value: {self.value}" + os.linesep + \

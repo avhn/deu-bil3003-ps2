@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import random
+import os
 from collections import defaultdict
 from itertools import chain
 from itertools import combinations
+
+from . import parse
 
 
 def is_convertible(val: str):
@@ -50,7 +53,7 @@ def generate_splits_string(column: int, records):
         records: Any sequence of record tuples
 
     Yields:
-        Corresponding lambda function.
+        Corresponding lambda function, description of the function
     """
 
     if column == len(random.sample(records, 1)[0]):
@@ -66,7 +69,7 @@ def generate_splits_string(column: int, records):
         # use frozenset to be able to hash sets to detect duplicates
         left_branch = frozenset(left_branch)
         if left_branch not in duplicates:  # no need to check both branches
-            yield lambda r: r[column] in left_branch
+            yield lambda r: r[column] in left_branch, f"{column + 1}. column in {left_branch}"
         if len(left_branch) == max_antecedent_len:
             duplicates.add(frozenset(distinct.difference(left_branch)))
 
@@ -80,7 +83,7 @@ def generate_splits_number(column: int, records):
         records: Any sequence of record tuples
 
     Yields:
-        Corresponding lambda function.
+        Corresponding lambda function, description of the function
     """
 
     if column == len(random.sample(records, 1)[0]):
@@ -92,7 +95,7 @@ def generate_splits_number(column: int, records):
     sorted_distinct = list(distinct)
     sorted_distinct.sort()
     for split_point in sorted_distinct:
-        yield lambda r: r[column] <= split_point
+        yield lambda r: r[column] <= split_point, f"{column + 1}. column <= {split_point}"
 
 
 def generate_splits(records, class_tag_included=True):
@@ -103,7 +106,7 @@ def generate_splits(records, class_tag_included=True):
         records: Any sequence of record tuples
         class_tag_included: Class tag at the index -1
     Yields:
-        All decision functions for the records.
+        All decision functions for the records, description of the function
     """
 
     record = random.sample(records, 1)[0]
@@ -111,8 +114,8 @@ def generate_splits(records, class_tag_included=True):
     for column in range(0, len(record) - (1 if class_tag_included else 0)):
         generator = generate_splits_string if isinstance(record[column], str) \
             else generate_splits_number
-        for decision_function in generator(column, records):
-            yield decision_function
+        for decision_function, description in generator(column, records):
+            yield decision_function, description
 
 
 def gini_index_split(decision_function, records):
@@ -145,11 +148,11 @@ def best_split(records, impurity: float):
         Best of gini_index_split's output and corresponding decision function.
         Representation:
             (Gain of the split, left branch's record set, right branch's record set,
-            decision function)
+            decision function, description)
     """
 
     result = None
-    for decision_function in generate_splits(records):
+    for decision_function, description in generate_splits(records):
         (left_gini, left_set), (right_gini, right_set) = \
             gini_index_split(decision_function, records)
         # weight impurities with the length of the sets
@@ -157,5 +160,56 @@ def best_split(records, impurity: float):
         left_weight = len(left_set) / len(records)
         gain = impurity - left_weight * left_gini - (1 - left_weight) * right_gini
         if 0 < gain and (not result or result[0] < gain):
-            result = gain, left_set, right_set, decision_function
+            result = gain, left_set, right_set, decision_function, description
     return result
+
+
+def test_classifier(classifier, test_set_file='test_set.csv'):
+    """
+    * Problem set specific. Only for binary class data sets.
+    Test classifier object's accuracy.
+
+    Args:
+        classifier: And classifier object with the method "decide(self, record)"
+        test_set_file: location of the csv file, the test set
+    Returns:
+        Sequence representing test result as below:
+            (Accuracy, TP rate, TN rate, TP count, TN count)
+    """
+
+    test_set = parse.parse_set(test_set_file)
+
+    positive = 'good'
+    counts = [[0, 0], [0, 0]]  # [[TP count, FP count], [TN count, FN count]]
+    for record in test_set:
+        result = classifier.decide(record)
+        if result == positive:
+            if result == record[-1]:
+                counts[0][0] += 1
+            else:
+                counts[0][1] += 1
+        else:
+            if result == record[-1]:
+                counts[1][0] += 1
+            else:
+                counts[1][1] += 1
+
+    try:
+        return (counts[0][0] + counts[1][0]) / len(test_set), counts[0][0] / sum(counts[0]), \
+            counts[1][0] / sum(counts[1]), counts[0][0], counts[1][0]
+    except ZeroDivisionError:
+        return None
+
+
+def format_test_result(result):
+    """Print output of test_classifier."""
+
+    if not result:
+        return "Not enough test data."
+
+    return f"# Test Result #" + \
+           f"{os.linesep}Accuracy: {result[0]}" + \
+           f"{os.linesep}TP rate: {result[1]}" + \
+           f"{os.linesep}TN rate: {result[2]}" + \
+           f"{os.linesep}TP count: {result[3]}" + \
+           f"{os.linesep}TN count: {result[4]}{os.linesep}"
