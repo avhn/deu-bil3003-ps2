@@ -124,31 +124,38 @@ def gini_index_split(decision_function, records):
         records: Any sequence of record tuples
 
     Returns:
-        (Gini index of the split, left branch's record set, right branch's record set)
+        (left gini index, left set), (right gini index, right set)
     """
 
     left_set, right_set = set(), set()
     for record in records:
         left_set.add(record) if decision_function(record) else right_set.add(record)
     left_gini, right_gini = gini_index(left_set), gini_index(right_set)
-    return max(left_gini, right_gini), left_set, right_set
+    return (left_gini, left_set), (right_gini, right_set)
 
 
-def best_split(records):
+def best_split(records, impurity: float):
     """
     Find the best split.
 
     Args:
         records: Any sequence of records
+        impurity: Gini index of the passed records
     Returns:
         Best of gini_index_split's output and corresponding decision function.
         Representation:
-            (Gini index of the split, left branch's record set, right branch's record set)
+            (Gain of the split, left branch's record set, right branch's record set,
+            decision function)
     """
 
     result = None
     for decision_function in generate_splits(records):
-        split = gini_index_split(decision_function, records)
-        if not result or split[0] < result[0]:
-            result = *split, decision_function
+        (left_gini, left_set), (right_gini, right_set) = \
+            gini_index_split(decision_function, records)
+        # weight impurities with the length of the sets
+        # to calculate more accurate gain values
+        left_weight = len(left_set) / len(records)
+        gain = impurity - left_weight * left_gini - (1 - left_weight) * right_gini
+        if 0 < gain and (not result or result[0] < gain):
+            result = gain, left_set, right_set, decision_function
     return result

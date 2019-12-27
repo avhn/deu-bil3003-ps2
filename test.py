@@ -83,16 +83,15 @@ class UtilTests(unittest.TestCase):
     def test_gini_index_split(self):
         dataset = self.get_dataset()
         for decision_function in utils.generate_splits(dataset):
-            gini_index, left_set, right_set = utils.gini_index_split(decision_function, dataset)
-            assert gini_index and 0 <= gini_index <= 1
-            assert left_set and right_set
+            left, right = utils.gini_index_split(decision_function, dataset)
+            assert left and right
             return True
         raise ValueError("Empty generator.")
 
     def test_best_split(self):
         dataset = self.get_dataset()
         gini_index, left_set, right_set, decision_function \
-            = utils.best_split(dataset)
+            = utils.best_split(dataset, utils.gini_index(dataset))
         assert decision_function(random.sample(left_set, 1)[0]) is not None
         assert decision_function(random.sample(right_set, 1)[0]) is not None
         assert 0 <= gini_index <= 1

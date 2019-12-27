@@ -26,6 +26,7 @@ class CartNode(object):
             raise ValueError("Subset isn't valid.")
 
         self.records = records
+        self.impurity = None
         self.value = None
         self.decision_function = None
         self.split_info = None  # TODO: To visualize, not implemented
@@ -67,12 +68,13 @@ class CartNode(object):
     def split(self):
         """Split node or label it as value."""
         # check if pure to label
-        if utils.gini_index(self.records) == 0:
+        self.impurity = utils.gini_index(self.records)
+        if self.impurity == 0:
             self.set_as_leaf(random.sample(self.records, 1)[0][-1])
             return self.value
         # split
-        gini_index, left_set, right_set, self.decision_function = \
-            utils.best_split(self.records)
+        _, left_set, right_set, self.decision_function = \
+            utils.best_split(self.records, self.impurity)
         self.set_branches(CartNode(left_set), CartNode(right_set))
 
     def split_recursively(self):
