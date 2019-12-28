@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
+import copy
 import os
 import random
 
@@ -36,30 +37,30 @@ class CartNode(object):
 
     def set_branches(self, left=None, right=None):
         """
-        Set this node as subtree.
+        Set this node as subtree. Nullifies leaf value if exists.
 
         Args:
-            Arguments should be instance of Node, this class.
+            Arguments should be instance of CartNode, this class.
         """
 
         self.left, self.right = left, right
         self.value = None
 
     def set_as_leaf(self, value):
-        """Set this node as a leaf."""
+        """Set this node as a leaf. Only effects branches and value."""
 
-        self.left, self.right, self.decision_function, self.split_info = [None] * 4
+        self.left, self.right = None, None
         self.value = value
 
     def is_leaf(self):
-        """Return corresponding boolean indicator."""
+        """Return corresponding boolean indicator. Only looks at branches."""
 
         return not (self.left or self.right)
 
     def is_node_valid(self):
-        """Determine if node is valid."""
+        """Determine if node is valid. Checking with branches and value."""
 
-        return ((self.left or self.right or self.decision_function) is None) \
+        return ((self.left or self.right) is None) \
             is not (self.value is None)
 
     def set_decision_function(self, function):
@@ -114,6 +115,26 @@ class CartNode(object):
 
         self.set_as_leaf(self.get_most_frequent_class())
 
+    def prune_if_necessary(self, parent, prune_set):
+        """
+        If error rate decreases, prune this node.
+
+        Args:
+            parent: CartTree or CartNode
+            prune_set: Sequence of records with class tag to
+                calculate error rates
+        """
+
+        if self.is_leaf():
+            return
+        original_error_rate = utils.classification_error_rate(parent, prune_set)
+        temp_left, temp_right = self.left, self.right
+        self.prune()
+        pruned_error_rate = utils.classification_error_rate(parent, prune_set)
+        if not pruned_error_rate <= original_error_rate:
+            # not beneficial, undo prune
+            self.set_branches(temp_left, temp_right)
+
     def repr_of_tree_recursively(self, output_list, prefix='', children_prefix=''):
         """Populate output to output_list. Courtesy to Vasili Novikov."""
 
@@ -128,6 +149,11 @@ class CartNode(object):
             else:
                 node.repr_of_tree_recursively(output_list, children_prefix + "└(F)─ ",
                                               children_prefix + "      ")
+
+    def clone(self):
+        """Return shallow copy of self."""
+
+        return copy.copy(self)
 
     def __repr__(self):
         """Return representation of this subtree, or leaf."""

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import copy
 from .utils import classification_error_rate
 from .node import CartNode
 
@@ -21,46 +20,28 @@ class CartTree(object):
 
         return self.root.classify(record)
 
-    def post_prune(self, prune_set, node=None):
+    def post_prune(self, prune_set):
+        """Prune the tree with prune set using Reduced Error Pruning method."""
+
+        self.post_prune_recursively(self.root, prune_set)
+
+    def post_prune_recursively(self, node, prune_set):
         """
         Prune tree with Reduced Error Pruning method.
 
         Args:
+            node: Subtree
             prune_set: Sequence of records with class tag at index -1
         """
 
-        if not node:
-            node = self.root
-        elif node and node.is_leaf():
+        if node.is_leaf():
             return
-
-        def return_test_node(node):
-            test_node = copy.copy(node)
-            test_node.prune()
-            return node, test_node
-
-        if not node.left.is_leaf():
-            original_error_rate = classification_error_rate(self, prune_set)
-            original_node, test_node = return_test_node(node.left)
-            # test new node
-            node.left = test_node
-            test_error_rate = classification_error_rate(self, prune_set)
-            # decide to prune permanently
-            node.left = test_node if test_error_rate <= original_error_rate \
-                else original_node
-
-        if not node.right.is_leaf():
-            original_error_rate = classification_error_rate(self, prune_set)
-            original_node, test_node = return_test_node(node.right)
-            # test new node
-            node.right = test_node
-            test_error_rate = classification_error_rate(self, prune_set)
-            # decide to prune permanently
-            node.right = test_node if test_error_rate <= original_error_rate \
-                else original_node
-
-        self.post_prune(prune_set, node.left)
-        self.post_prune(prune_set, node.right)
+        # recurse till leafs
+        self.post_prune_recursively(node.left, prune_set)
+        self.post_prune_recursively(node.right, prune_set)
+        # prune if beneficial
+        node.left.prune_if_necessary(self, prune_set)
+        node.right.prune_if_necessary(self, prune_set)
 
     def formatted_repr(self, header_file=None):
         """
