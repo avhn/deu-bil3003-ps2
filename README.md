@@ -56,4 +56,5 @@ TN count: 14
 
 ## Notes
 
+- Parsing aggregates records to a set, non-linear data structure. Therefore if there's multiple best splits with same gain, sometimes different and sometimes same trees will show up for different executions.
 - It is assumed that the .csv file indicates class tag as the last value.
