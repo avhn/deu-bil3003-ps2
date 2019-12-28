@@ -179,7 +179,7 @@ class CartNodeTests(unittest.TestCase):
         # crawl through and test at CartTree tests
         return node
 
-    def test_repr_tree_recursively(self):
+    def test_repr_of_tree_recursively(self):
         node = self.test_split_recursively()
         assert node.is_node_valid()
         output_list = list()
@@ -203,10 +203,22 @@ class CartNodeTests(unittest.TestCase):
     def test_prune(self):
         node = self.test_split_recursively()
         assert node.right.is_node_valid()
-        assert node.right.value is None
         node.right.prune()
         assert node.right.value is not None
         assert node.right.value == node.right.get_most_frequent_class()
+
+    def test_prune_if_necessary(self):
+        dataset = parse.parse_set()
+        node = self.test_split_recursively()
+        child = node.left or node.right
+        assert child
+        child.prune_if_necessary(node, dataset)
+
+    def test_clone(self):
+        node = self.test_split_recursively()
+        clone = node.clone()
+        assert node != clone
+        assert node.left == clone.left and  node.right == clone.right
 
 
 class CartTreeTests(unittest.TestCase):
@@ -234,7 +246,17 @@ class CartTreeTests(unittest.TestCase):
         before = utils.test_classifier(tree)
         tree.post_prune(parse.parse_set('train_set.csv'))
         after = utils.test_classifier(tree)
-        assert before[0] <= after[0]
+        if before and after:
+            assert before[0] <= after[0]
+
+    def test_post_prune_recursively(self):
+        tree = self.test_init()
+        before = utils.test_classifier(tree)
+        tree.post_prune_recursively(tree.root, parse.parse_set('train_set.csv'))
+        after = utils.test_classifier(tree)
+        if before and after:
+            assert before[0] <= after[0]
+
 
 if __name__ == '__main__':
     unittest.main()
