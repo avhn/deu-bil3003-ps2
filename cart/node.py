@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict
 import os
 import random
 
@@ -27,6 +28,7 @@ class CartNode(object):
 
         self.records = records
         self.impurity = None
+        self.most_frequent_class = None
         self.value = None
         self.decision_function = None
         self.split_info = None
@@ -46,7 +48,7 @@ class CartNode(object):
     def set_as_leaf(self, value):
         """Set this node as a leaf."""
 
-        self.left, self.right = None, None
+        self.left, self.right, self.decision_function, self.split_info = [None] * 4
         self.value = value
 
     def is_leaf(self):
@@ -93,8 +95,27 @@ class CartNode(object):
         return self.left.classify(record) if self.decision_function(record) \
             else self.right.classify(record)
 
-    def print_tree_recursively(self, output_list, prefix='', children_prefix=''):
-        """Courtesy to Vasili Novikov."""
+    def get_most_frequent_class(self):
+        """Set if most_frequent_class isn't set and return."""
+
+        if not self.most_frequent_class:
+            counts = defaultdict(lambda: 0)
+            for r in self.records:
+                counts[r[-1]] += 1
+            tag, count = None, 0
+            for k, v in counts.items():
+                if count < v:
+                    tag, count = k, v
+            self.most_frequent_class = tag
+        return self.most_frequent_class
+
+    def prune(self):
+        """Make a leaf of most frequent class."""
+
+        self.set_as_leaf(self.get_most_frequent_class())
+
+    def repr_of_tree_recursively(self, output_list, prefix='', children_prefix=''):
+        """Populate output to output_list. Courtesy to Vasili Novikov."""
 
         output_list.append(prefix)
         output_list.append(f"({self.split_info})" if not self.is_leaf() else self.value)
@@ -102,15 +123,15 @@ class CartNode(object):
         children = [n for n in (self.left, self.right) if n]
         for i, node in enumerate(children):
             if i == 0:
-                node.print_tree_recursively(output_list, children_prefix + "├(T)─ ",
-                                            children_prefix + "│     ")
+                node.repr_of_tree_recursively(output_list, children_prefix + "├(T)─ ",
+                                              children_prefix + "│     ")
             else:
-                node.print_tree_recursively(output_list, children_prefix + "└(F)─ ",
-                                            children_prefix + "      ")
+                node.repr_of_tree_recursively(output_list, children_prefix + "└(F)─ ",
+                                              children_prefix + "      ")
 
     def __repr__(self):
         """Return representation of this subtree, or leaf."""
 
         print_list = list()
-        self.print_tree_recursively(print_list)
+        self.repr_of_tree_recursively(print_list)
         return ''.join(print_list)

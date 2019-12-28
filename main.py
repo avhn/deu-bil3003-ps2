@@ -11,6 +11,7 @@ from cart.tree import CartTree
 def main():
     train_set = parse.parse_set('train_set.csv')
     decision_tree = CartTree(train_set)
+    decision_tree.post_prune(train_set)
     print(f"# Decision Tree #{os.linesep}{decision_tree.formatted_repr('train_set.csv')}")
     test_result = utils.test_classifier(decision_tree, 'test_set.csv')
     printable_test_result = utils.format_test_classifier_result(test_result)

@@ -65,7 +65,7 @@ def generate_splits_string(column: int, records):
     for left_branch in chain.from_iterable(antecedents):
         left_branch = frozenset(left_branch)
         yield lambda r: r[column] in left_branch, \
-            f"{column + 1}. column in {{{', '.join([element for element in left_branch])}}}"
+            f"{column + 1}. column in {{{', '.join(left_branch)}}}"
 
 
 def generate_splits_number(column: int, records):
@@ -115,7 +115,7 @@ def gini_index_split(decision_function, records):
     Calculate gini indexes and record sets of the split branches.
 
     Args:
-        decision_function: lambda function for decision
+        decision_function: Lambda function for decision
         records: Any sequence of record tuples
     Returns:
         (left gini index, left set), (right gini index, right set)
@@ -203,3 +203,25 @@ def format_test_classifier_result(result):
            f"{os.linesep}TN rate: {result[2]}" + \
            f"{os.linesep}TP count: {result[3]}" + \
            f"{os.linesep}TN count: {result[4]}{os.linesep}"
+
+
+def classification_error_rate(classifier, dataset):
+    """
+    Return error rate.
+
+    Args:
+        classifier: Classifier with the classify method
+        dataset: Sequence of records with class tag at index -1
+    Returns:
+        Float object between 0 and 1 indicating error rate of the classifier.
+    """
+
+    if not dataset or not isinstance(dataset, (tuple, list, set, frozenset)):
+        raise ValueError("Dataset isn't valid.")
+
+    error_count = 0
+    for record in dataset:
+        result = classifier.classify(record)
+        if result != record[-1]:
+            error_count += 1
+    return error_count / len(dataset)

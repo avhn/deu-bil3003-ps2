@@ -107,6 +107,11 @@ class UtilTests(unittest.TestCase):
         assert tp_rate and tp_count
         assert tn_rate and tn_count
 
+    def test_classification_error_rate(self):
+        tree = CartTree(self.get_dataset())
+        result = utils.classification_error_rate(tree, self.get_dataset())
+        assert 0 <= result <= 1
+
 
 class CartNodeTests(unittest.TestCase):
     D = list(parse.parse_set())
@@ -174,6 +179,13 @@ class CartNodeTests(unittest.TestCase):
         # crawl through and test at CartTree tests
         return node
 
+    def test_repr_tree_recursively(self):
+        node = self.test_split_recursively()
+        assert node.is_node_valid()
+        output_list = list()
+        node.repr_of_tree_recursively(output_list)
+        assert output_list
+
     def test_classify(self):
         node = self.test_split_recursively()
         dataset = parse.parse_set('test_set.csv')
@@ -182,11 +194,26 @@ class CartNodeTests(unittest.TestCase):
         assert result
         assert isinstance(result, str)
 
+    def test_get_most_frequent_class(self):
+        dataset = parse.parse_set()
+        node = CartNode(dataset)
+        result = node.get_most_frequent_class()
+        assert result and isinstance(result, str)
+
+    def test_prune(self):
+        node = self.test_split_recursively()
+        assert node.right.is_node_valid()
+        assert node.right.value is None
+        node.right.prune()
+        assert node.right.value is not None
+        assert node.right.value == node.right.get_most_frequent_class()
+
 
 class CartTreeTests(unittest.TestCase):
 
     def test_init(self):
         """Also returns the tree created."""
+
         dataset = parse.parse_set()
         tree = CartTree(random.sample(dataset, len(dataset) // 5))
         return tree
@@ -197,6 +224,17 @@ class CartTreeTests(unittest.TestCase):
         tag = tree.classify(random.sample(dataset, 1)[0])
         assert tag and isinstance(tag, str)
 
+    def test_formatted_repr(self):
+        tree = self.test_init()
+        output = tree.formatted_repr('train_set.csv')
+        assert output
+
+    def test_post_prune(self):
+        tree = self.test_init()
+        before = utils.test_classifier(tree)
+        tree.post_prune(parse.parse_set('train_set.csv'))
+        after = utils.test_classifier(tree)
+        assert before[0] <= after[0]
 
 if __name__ == '__main__':
     unittest.main()
