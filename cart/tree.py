@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .utils import classification_error_rate
+import os
 from .node import CartNode
 
 
@@ -55,9 +55,11 @@ class CartTree(object):
             Else standard __repr__ output.
         """
 
+        if header_file and not os.path.isfile(header_file):
+            raise ValueError("Header file isn't valid.")
+
         output = self.__repr__()
         if header_file:  # replace '*. column' with header tag
-            headers = None
             with open(header_file) as file:
                 headers = file.readline().strip().split(',')
             output = output.split('. column')

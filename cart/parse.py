@@ -18,10 +18,10 @@ def parse_set(filepath="train_set.csv"):
             set{tuple(v1, ..., class), tuple(v1, ..., class), ...}
     """
 
-    D = set()
+    d = set()
     with open(filepath, 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for i, row in enumerate(reader):
             if 0 < i:
-                D.add(tuple([utils.normalize(val) for val in row]))
-    return D
+                d.add(tuple([utils.normalize(val) for val in row]))
+    return d

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import random
 
 from cart import parse
 from cart import utils

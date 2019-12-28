@@ -218,7 +218,7 @@ class CartNodeTests(unittest.TestCase):
         node = self.test_split_recursively()
         clone = node.clone()
         assert node != clone
-        assert node.left == clone.left and  node.right == clone.right
+        assert node.left == clone.left and node.right == clone.right
 
 
 class CartTreeTests(unittest.TestCase):
